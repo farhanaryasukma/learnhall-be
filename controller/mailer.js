@@ -52,7 +52,7 @@ const transporter = nodemailer.createTransport({
 const addBookSession = async (req, res) => {
   const { username, email, phone, why } = req.body;
 
-  const setParams = [username, email, phone, why, "Sheet1!A1"]
+  const setParams = [username, email, phone, why, `'session booking'!A1`]
   const data = await addData(setParams);
 
   const text = `${username} book a session! contact them right away on ${email} or ${phone}. \n reason: ${why}`
@@ -71,7 +71,7 @@ const addBookSession = async (req, res) => {
 const addTutorRegistration = async (req, res) => {
     const { username, email, phone, tell } = req.body;
 
-    const setParams = [username, email, phone, tell, "Sheet2!A1"]
+    const setParams = [username, email, phone, tell, `'tutor registration'!A1`]
     const data = await addData(setParams);
   
     const text = `${username} is interested to become a tutor! contact them right away on ${email} or ${phone}. \n reason: ${tell}`
