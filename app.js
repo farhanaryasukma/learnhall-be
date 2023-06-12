@@ -1,16 +1,17 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors')
 
-var indexRouter = require('./routes/index');
-var apiRouter = require('./routes/api');
-
-
-var app = express();
+const apiRouter = require('./routes/api');
+const indexRouter = require('./routes/index');
 
 
+const app = express();
+
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
