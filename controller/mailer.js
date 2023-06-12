@@ -3,48 +3,50 @@ const { google } = require("googleapis");
 
 const clientEMail = process.env.client_email;
 const privateKey = process.env.private_key.replace(/\\n/g, "\n");
-const spreadSheetId = process.env.spreadsheetid;
+const spreadsheetId = process.env.spreadsheetid;
 
 let jwtClient = new google.auth.JWT(clientEMail, null, privateKey, [
   "https://www.googleapis.com/auth/spreadsheets",
 ]);
 
-//authenticate request
-jwtClient.authorize(function (err, tokens) {
-  if (err) {
-    console.log("error loh");
-    console.log(err);
-    return;
-  } else {
-    console.log("Successfully connected!");
-  }
-});
+const addData = async () => {
+  try {
+    // Authenticate and authorize the client
+    await jwtClient.authorize();
 
-const getDataFromSheet = async (spreadsheetId, range)  => {
-    try {
-      // Authenticate and authorize the client
-      await jwtClient.authorize();
-  
-      // Create Google Sheets API instance
-      const sheets = google.sheets({ version: 'v4', auth: jwtClient });
-  
-      // Make API request to get data
-      const response = await sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range,
-      });
-  
-      return response.data.values;
-    } catch (error) {
-      console.error('Error reading spreadsheet data:', error);
-      throw error;
-    }
-  }
-  
+    // Create Google Sheets API instance
+    const sheets = google.sheets({ version: "v4", auth: jwtClient });
+    const request = {
+      spreadsheetId,
+      range: "Sheet1!A1",
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      resource: {
+        values: [["babi aku"]],
+      },
+    };
 
-const main = async () => {
-  const data = await getDataFromSheet(spreadSheetId, "Sheet1!A1");
-  const text = data.toString()
+    // Make API request to post data
+    const response = await sheets.spreadsheets.values.append(request);
+    console.log(
+      "New row added successfully:",
+      response.data.updates.updatedRange
+    );
+    console.log(response.data);
+    //   return response.data.values;
+  } catch (error) {
+    console.error("Error reading spreadsheet data:", error);
+    throw error;
+  }
+};
+
+const mail = async (req, res) => {
+  const data = await addData();
+  //   const text = data.toString()
+  const { username, email, phone, why } = req.body;
+
+  const text = `${username} book a session!, contact them right away on ${email} or ${phone}. \n reason: ${why}`
+
   const testAccount = await nodemailer.createTestAccount();
   const transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
@@ -59,7 +61,7 @@ const main = async () => {
   let info = await transporter.sendMail({
     from: '"Fred Foo 👻" <foo@example.com>', // sender address
     to: "bar@example.com, baz@example.com", // list of receivers
-    subject: "Hello :(", // Subject line
+    subject: "New Session Book!", // Subject line
     text: text,
   });
   console.log("Message sent: %s", info.messageId);
