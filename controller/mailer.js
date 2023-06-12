@@ -9,20 +9,21 @@ let jwtClient = new google.auth.JWT(clientEMail, null, privateKey, [
   "https://www.googleapis.com/auth/spreadsheets",
 ]);
 
-const addData = async () => {
+const addData = async ([username, email, phone, description, range]) => {
   try {
     // Authenticate and authorize the client
     await jwtClient.authorize();
+    const data = [username, email, phone, description]
 
     // Create Google Sheets API instance
     const sheets = google.sheets({ version: "v4", auth: jwtClient });
     const request = {
       spreadsheetId,
-      range: "Sheet1!A1",
+      range: range,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       resource: {
-        values: [["babi aku"]],
+        values: [data],
       },
     };
 
@@ -32,20 +33,19 @@ const addData = async () => {
       "New row added successfully:",
       response.data.updates.updatedRange
     );
-    console.log(response.data);
-    //   return response.data.values;
   } catch (error) {
     console.error("Error reading spreadsheet data:", error);
     throw error;
   }
 };
 
-const mail = async (req, res) => {
-  const data = await addData();
-  //   const text = data.toString()
+const addBookSession = async (req, res) => {
   const { username, email, phone, why } = req.body;
 
-  const text = `${username} book a session!, contact them right away on ${email} or ${phone}. \n reason: ${why}`
+  const setParams = [username, email, phone, why, "Sheet1!A1"]
+  const data = await addData(setParams);
+
+  const text = `${username} book a session! contact them right away on ${email} or ${phone}. \n reason: ${why}`
 
   const testAccount = await nodemailer.createTestAccount();
   const transporter = nodemailer.createTransport({
@@ -70,5 +70,41 @@ const mail = async (req, res) => {
   // Preview only available when sending through an Ethereal account
   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+  res.send(`success! new data saved`)
 };
-module.exports = main;
+
+const addTutorRegistration = async (req, res) => {
+    const { username, email, phone, tell } = req.body;
+
+    const setParams = [username, email, phone, tell, "Sheet2!A1"]
+    const data = await addData(setParams);
+  
+    const text = `${username} book a session! contact them right away on ${email} or ${phone}. \n reason: ${tell}`
+  
+    const testAccount = await nodemailer.createTestAccount();
+    const transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: testAccount.user, // generated ethereal user
+        pass: testAccount.pass, // generated ethereal password
+      },
+    });
+  
+    let info = await transporter.sendMail({
+      from: '"Fred Foo 👻" <foo@example.com>', // sender address
+      to: "bar@example.com, baz@example.com", // list of receivers
+      subject: "New Session Book!", // Subject line
+      text: text,
+    });
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+  
+    // Preview only available when sending through an Ethereal account
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+    res.send(`success! new data saved`)
+
+}
+module.exports = {addBookSession, addTutorRegistration};
