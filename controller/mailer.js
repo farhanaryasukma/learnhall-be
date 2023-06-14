@@ -77,7 +77,7 @@ const addTutorRegistration = async (req, res) => {
     const text = `${username} is interested to become a tutor! contact them right away on ${email} or ${phone}. \n reason: ${tell}`
   
     let info = await transporter.sendMail({
-      from: '"farhan.arya.work@gmail.com', // sender address
+      from: emailUsed, // sender address
       to: "farhan.arya.sukma@gmail.com", // list of receivers
       subject: "Someone Interested to be our Tutor!", // Subject line
       text: text,
