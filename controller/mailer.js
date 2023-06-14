@@ -59,7 +59,7 @@ const addBookSession = async (req, res) => {
 
   let info = await transporter.sendMail({
     from: '"farhan.arya.work@gmail.com', // sender address
-    to: "farhan.arya.sukma@gmail.com", // list of receivers
+    to: "farhan.arya.work@gmail.com", // list of receivers
     subject: "New Session Book!", // Subject line
     text: text, //email content
   });
@@ -78,7 +78,7 @@ const addTutorRegistration = async (req, res) => {
   
     let info = await transporter.sendMail({
       from: emailUsed, // sender address
-      to: "farhan.arya.sukma@gmail.com", // list of receivers
+      to: "farhan.arya.work@gmail.com", // list of receivers
       subject: "Someone Interested to be our Tutor!", // Subject line
       text: text,
     });
