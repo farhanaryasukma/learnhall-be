@@ -1,31 +1,33 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 
-const clientEMail = process.env.client_email;
-const privateKey = process.env.private_key.replace(/\\n/g, "\n");
-const spreadsheetId = process.env.spreadsheetid;
-const emailUsed = process.env.emailUsed
-const emailPass = process.env.emailpass
+require("dotenv").config();
 
-let jwtClient = new google.auth.JWT(clientEMail, null, privateKey, [
+const clientEmail = process.env.CLIENT_EMAIL;
+const privateKey = process.env.PRIVATE_KEY.replace(/\\n/g, "\n");
+const spreadsheetId = process.env.SPREADSHEET_ID;
+const emailUsed = process.env.EMAIL_USED;
+const emailPass = process.env.EMAIL_PASS;
+
+const jwtClient = new google.auth.JWT(clientEmail, null, privateKey, [
   "https://www.googleapis.com/auth/spreadsheets",
 ]);
 
-const addData = async ([username, email, phone, description, range]) => {
+const addData = async (values, range) => {
   try {
     // Authenticate and authorize the client
     await jwtClient.authorize();
-    const data = [username, email, phone, description]
 
     // Create Google Sheets API instance
     const sheets = google.sheets({ version: "v4", auth: jwtClient });
+
     const request = {
       spreadsheetId,
-      range: range,
+      range,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       resource: {
-        values: [data],
+        values: [values],
       },
     };
 
@@ -42,50 +44,51 @@ const addData = async ([username, email, phone, description, range]) => {
 };
 
 const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: emailUsed, // generated ethereal user
-      pass: emailPass, // generated ethereal password
-    },
-  });
+  service: "Gmail",
+  auth: {
+    user: emailUsed,
+    pass: emailPass,
+  },
+});
 
 const addBookSession = async (req, res) => {
   const { username, email, phone, why } = req.body;
+  const setParams = [username, email, phone, why];
+  const range = "'tutor registration'!A1:A10";
 
-  const setParams = [username, email, phone, why, `'session booking'!A1`]
-  const data = await addData(setParams);
+  await addData(setParams, range);
 
-  const text = `${username} book a session! contact them right away on ${email} or ${phone}. \n reason: ${why}`
+  const text = `${username} booked a session! Contact them right away on ${email} or ${phone}.\nReason: ${why}`;
 
   let info = await transporter.sendMail({
-    from: '"farhan.arya.work@gmail.com', // sender address
-    to: "farhan.arya.sukma@gmail.com", // list of receivers
-    subject: "New Session Book!", // Subject line
-    text: text, //email content
+    from: "info@learnhall.com",
+    to: "mwhoeft@gmail.com",
+    subject: "New Session Book!",
+    text: text,
   });
-  console.log("Message sent: %s", info.response);
 
-  res.send(`success! new data saved`)
+  console.log("Message sent: %s", info.response);
+  res.send("Success! New data saved.");
 };
 
 const addTutorRegistration = async (req, res) => {
-    const { username, email, phone, tell } = req.body;
+  const { username, email, phone, tell } = req.body;
+  const setParams = [username, email, phone, tell];
+  const range = "'Sheet1'!A1";
 
-    const setParams = [username, email, phone, tell, `'tutor registration'!A1`]
-    const data = await addData(setParams);
-  
-    const text = `${username} is interested to become a tutor! contact them right away on ${email} or ${phone}. \n reason: ${tell}`
-  
-    let info = await transporter.sendMail({
-      from: emailUsed, // sender address
-      to: "farhan.arya.sukma@gmail.com", // list of receivers
-      subject: "Someone Interested to be our Tutor!", // Subject line
-      text: text,
-    });
+  await addData(setParams, range);
 
-    console.log("Message sent: %s", info.messageId);
-  
-    res.send(`success! new data saved`)
+  const text = `${username} is interested in becoming a tutor! Contact them right away on ${email} or ${phone}.\nReason: ${tell}`;
 
-}
-module.exports = {addBookSession, addTutorRegistration};
+  let info = await transporter.sendMail({
+    from: emailUsed,
+    to: "mwhoeft@gmail.com",
+    subject: "Someone Interested to be our Tutor!",
+    text: text,
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  res.send("Success! New data saved.");
+};
+
+module.exports = { addBookSession, addTutorRegistration };

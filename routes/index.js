@@ -8,7 +8,7 @@ const test = process.env.PORT
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.send(`${test} dari sini nih`);
+  res.send(`Express Server on port ${test}`);
 });
 
 module.exports = router;
