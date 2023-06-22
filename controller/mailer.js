@@ -54,16 +54,16 @@ const transporter = nodemailer.createTransport({
 const addBookSession = async (req, res) => {
   const { username, email, phone, why } = req.body;
   const setParams = [username, email, phone, why];
-  const range = "'tutor registration'!A1:A10";
+  const range = "'new-sessions'!A1";
 
   await addData(setParams, range);
 
   const text = `${username} booked a session! Contact them right away on ${email} or ${phone}.\nReason: ${why}`;
 
   let info = await transporter.sendMail({
-    from: "info@learnhall.com",
-    to: "mwhoeft@gmail.com",
-    subject: "New Session Book!",
+    from: emailUsed,
+    to: "iamjanus@proton.me",
+    subject: "New Session Booked!",
     text: text,
   });
 
@@ -74,7 +74,7 @@ const addBookSession = async (req, res) => {
 const addTutorRegistration = async (req, res) => {
   const { username, email, phone, tell } = req.body;
   const setParams = [username, email, phone, tell];
-  const range = "'Sheet1'!A1";
+  const range = "'new-tutor'!A1";
 
   await addData(setParams, range);
 

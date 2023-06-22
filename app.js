@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["https://everymanenglish.com/"],
+    origin: ["https://everymanenglish.com", "http://localhost:3000"],
     optionsSuccessStatus: 200,
     methods: ["POST"],
   })
