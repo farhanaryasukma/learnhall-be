@@ -1,14 +1,12 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-require('dotenv').config();
+require("dotenv").config();
 
-
-const test = process.env.PORT
-
+const test = process.env.PORT;
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.send(`Express Server on port ${test}`);
+router.get("/", function (req, res, next) {
+  res.json(`Express Server on port ${test}`);
 });
 
 module.exports = router;

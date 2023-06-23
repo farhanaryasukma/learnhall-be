@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
-
 require("dotenv").config();
 
 const clientEmail = process.env.CLIENT_EMAIL;
@@ -56,19 +55,24 @@ const addBookSession = async (req, res) => {
   const setParams = [username, email, phone, why];
   const range = "'new-sessions'!A1";
 
-  await addData(setParams, range);
+  try {
+    await addData(setParams, range);
 
-  const text = `${username} booked a session! Contact them right away on ${email} or ${phone}.\nReason: ${why}`;
+    const text = `${username} booked a session. Contact them right away on ${email} or ${phone}.\nReason: ${why}`;
 
-  let info = await transporter.sendMail({
-    from: emailUsed,
-    to: "iamjanus@proton.me",
-    subject: "New Session Booked!",
-    text: text,
-  });
+    let info = await transporter.sendMail({
+      from: emailUsed,
+      to: "iamjanus@proton.me",
+      subject: "New Session Booked!",
+      text: text,
+    });
 
-  console.log("Message sent: %s", info.response);
-  res.send("Success! New data saved.");
+    console.log("Message sent: %s", info.response);
+    res.send("Success! New data saved.");
+  } catch (error) {
+    console.error("Error adding book session:", error);
+    res.status(500).send("Error adding book session.");
+  }
 };
 
 const addTutorRegistration = async (req, res) => {
@@ -76,19 +80,24 @@ const addTutorRegistration = async (req, res) => {
   const setParams = [username, email, phone, tell];
   const range = "'new-tutor'!A1";
 
-  await addData(setParams, range);
+  try {
+    await addData(setParams, range);
 
-  const text = `${username} is interested in becoming a tutor! Contact them right away on ${email} or ${phone}.\nReason: ${tell}`;
+    const text = `${username} is interested in becoming a tutor! Contact them right away on ${email} or ${phone}.\nReason: ${tell}`;
 
-  let info = await transporter.sendMail({
-    from: emailUsed,
-    to: "mwhoeft@gmail.com",
-    subject: "Someone Interested to be our Tutor!",
-    text: text,
-  });
+    let info = await transporter.sendMail({
+      from: emailUsed,
+      to: "mwhoeft@gmail.com",
+      subject: "Someone Interested to be our Tutor!",
+      text: text,
+    });
 
-  console.log("Message sent: %s", info.messageId);
-  res.send("Success! New data saved.");
+    console.log("Message sent: %s", info.messageId);
+    res.send("Success! New data saved.");
+  } catch (error) {
+    console.error("Error adding tutor registration:", error);
+    res.status(500).send("Error adding tutor registration.");
+  }
 };
 
 module.exports = { addBookSession, addTutorRegistration };
